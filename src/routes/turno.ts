@@ -151,7 +151,7 @@ router.post('/free-appointments', [AuthMiddleware.verifyToken, AuthMiddleware.is
 
 router.post('/appointments', [AuthMiddleware.verifyToken, AuthMiddleware.isPaciente], async (req: Request, res: Response) => {
     try {
-        const { doctorId, date, startTime, endTime } = req.body;
+        const { doctorId, date, startTime, endTime, patologia } = req.body;
 
         // Validate the input
         if (!doctorId || !date || !startTime || !endTime) {
@@ -242,7 +242,8 @@ router.post('/appointments', [AuthMiddleware.verifyToken, AuthMiddleware.isPacie
             usuarioId: req.userId,
             date: date,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            patologia: patologia
         });
 
         // Save the appointment
@@ -320,20 +321,21 @@ router.get('/appointments/export', [AuthMiddleware.verifyToken, AuthMiddleware.i
         // Set up the column headers
         worksheet.columns = [
             { header: 'Doctor', key: 'doctor', width: 20 },
-            { header: 'Patient', key: 'patient', width: 20 },
-            { header: 'Date', key: 'date', width: 15 },
-            { header: 'Start Time', key: 'startTime', width: 15 },
-            { header: 'End Time', key: 'endTime', width: 15 }
+            { header: 'Paciente', key: 'patient', width: 20 },
+            { header: 'Patologia', key: 'patologia', width: 20 },
+            { header: 'Fecha', key: 'date', width: 15 },
+            { header: 'Hora de inicio', key: 'startTime', width: 15 },
+            { header: 'Hora de fin', key: 'endTime', width: 15 }
         ];
         console.log(startDate);
         console.log(endDate);
         // Populate the worksheet with appointment data
         appointments.forEach((appointment) => {
-            const { doctorId, usuarioId, date, startTime, endTime } = appointment as any;
+            const { doctorId, usuarioId, date, startTime, endTime, patologia } = appointment as any;
             const doctorName = (doctorId.nombre as any) + ' ' + doctorId.apellido;
             const patientName = usuarioId.nombre + ' ' + usuarioId.apellido;
             console.log(doctorName, patientName);
-            worksheet.addRow({ doctor: doctorName, patient: patientName, date: date, startTime, endTime });
+            worksheet.addRow({ doctor: doctorName, patient: patientName, patologia: patologia, date: date, startTime, endTime });
         });
 
         // Set the response headers for Excel file download
